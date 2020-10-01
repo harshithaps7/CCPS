@@ -1,8 +1,11 @@
 package com.udacity.jdnd.course3.critter.user;
 
+import com.udacity.jdnd.course3.critter.pet.Pet;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -16,14 +19,29 @@ import java.util.Set;
 @RequestMapping("/user")
 public class UserController {
 
+    private CustomerService customerService;
+
+    public UserController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
     @PostMapping("/customer")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
-        throw new UnsupportedOperationException();
+        Customer customer = new Customer();
+        BeanUtils.copyProperties(customerDTO, customer);
+        customer = customerService.save(customer);
+        customerDTO.setId(customer.getId());
+        return customerDTO;
     }
 
     @GetMapping("/customer")
     public List<CustomerDTO> getAllCustomers(){
-        throw new UnsupportedOperationException();
+        List<Customer> allCustomers = customerService.findAll();
+        List<CustomerDTO> allCustomerDTO = new ArrayList<>();
+        for (Customer customer : allCustomers) {
+            allCustomerDTO.add(convertCustomerToCustomerDTO(customer));
+        }
+        return allCustomerDTO;
     }
 
     @GetMapping("/customer/pet/{petId}")
@@ -49,6 +67,20 @@ public class UserController {
     @GetMapping("/employee/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
         throw new UnsupportedOperationException();
+    }
+
+    private CustomerDTO convertCustomerToCustomerDTO(Customer customer) {
+        CustomerDTO customerDTO = new CustomerDTO();
+        BeanUtils.copyProperties(customer, customerDTO);
+        List<Pet> petsOfCustomer =  customer.getPets();
+        List<Long> customerDTOPetIds = new ArrayList<>();
+        /*
+        for(Pet pet : petsOfCustomer) {
+            customerDTOPetIds.add(pet.getId());
+        }
+        */
+        customerDTO.setPetIds(customerDTOPetIds);
+        return customerDTO;
     }
 
 }
