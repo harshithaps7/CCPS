@@ -94,11 +94,9 @@ public class UserController {
         BeanUtils.copyProperties(customer, customerDTO);
         List<Pet> petsOfCustomer =  customer.getPets();
         List<Long> customerDTOPetIds = new ArrayList<>();
-        /*
         for(Pet pet : petsOfCustomer) {
             customerDTOPetIds.add(pet.getId());
         }
-        */
         customerDTO.setPetIds(customerDTOPetIds);
         return customerDTO;
     }

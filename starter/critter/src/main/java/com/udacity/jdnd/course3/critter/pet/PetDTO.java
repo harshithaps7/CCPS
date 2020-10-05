@@ -8,8 +8,8 @@ import java.time.LocalDate;
  */
 public class PetDTO {
     private long id;
-    private PetType type;
     private String name;
+    private PetType type;
     private long ownerId;
     private LocalDate birthDate;
     private String notes;

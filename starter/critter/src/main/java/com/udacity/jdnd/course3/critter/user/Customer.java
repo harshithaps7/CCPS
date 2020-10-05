@@ -4,6 +4,7 @@ import com.udacity.jdnd.course3.critter.pet.Pet;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,7 +27,7 @@ public class Customer implements Serializable {
     }
 
     @OneToMany(targetEntity = Pet.class, cascade = CascadeType.ALL)
-    private List<Pet> pets;
+    private List<Pet> pets = new ArrayList<Pet>();
 
     public Long getId() {
         return id;
@@ -58,6 +59,10 @@ public class Customer implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public void addOnePet(Pet pet) {
+        this.pets.add(pet);
     }
 }
 

@@ -1,7 +1,10 @@
 package com.udacity.jdnd.course3.critter.pet;
 
+import com.udacity.jdnd.course3.critter.user.CustomerService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,23 +14,53 @@ import java.util.List;
 @RequestMapping("/pet")
 public class PetController {
 
+    PetService petService;
+    CustomerService customerService;
+
+    public PetController(PetService petService, CustomerService customerService) {
+        this.petService = petService;
+        this.customerService = customerService;
+    }
+
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
-        throw new UnsupportedOperationException();
+        Pet pet = new Pet();
+        BeanUtils.copyProperties(petDTO, pet);
+        pet = petService.savePet(pet);
+        petDTO.setId(pet.getId());
+        return petDTO;
     }
 
     @GetMapping("/{petId}")
     public PetDTO getPet(@PathVariable long petId) {
-        throw new UnsupportedOperationException();
+        Pet pet = petService.getPetById(petId);
+        PetDTO petDTO = new PetDTO();
+        BeanUtils.copyProperties(pet, petDTO);
+        return petDTO;
     }
 
     @GetMapping
     public List<PetDTO> getPets(){
-        throw new UnsupportedOperationException();
+        List<Pet> allPets = petService.getAllPets();
+        return copyPetListToDTO(allPets);
     }
 
     @GetMapping("/owner/{ownerId}")
     public List<PetDTO> getPetsByOwner(@PathVariable long ownerId) {
-        throw new UnsupportedOperationException();
+        return copyPetListToDTO(petService.getPetsByOwner(ownerId));
     }
+
+
+    private List<PetDTO> copyPetListToDTO(List<Pet> allPets) {
+        List<PetDTO> allPetDTO = new ArrayList<PetDTO>();
+
+        for (Object pet: allPets ) {
+            PetDTO petDTO= new PetDTO();
+            BeanUtils.copyProperties(pet , petDTO);
+            allPetDTO.add(petDTO);
+        }
+
+        return allPetDTO;
+    }
+
 }
