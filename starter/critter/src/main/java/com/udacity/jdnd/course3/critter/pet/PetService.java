@@ -21,15 +21,16 @@ public class PetService {
     }
 
     public Pet savePet(Pet pet) {
-        pet = petRepository.save(pet);
+        Pet newPet = petRepository.save(pet);
         //Now need to associate pet to Customer
-        Optional<Customer> customerOptional = customerRepository.findById(pet.getOwnerId());
+        //System.out.println("Adding pet : " + newPet.getName() + " : " + newPet.getId());
+        Optional<Customer> customerOptional = customerRepository.findById(newPet.getOwnerId());
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
-            customer.addOnePet(pet);
+            customer.addOnePet(newPet);
             customerRepository.save(customer);
         }
-        return pet;
+        return newPet;
     }
 
     public Pet getPetById(Long id) {
