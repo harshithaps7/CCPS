@@ -21,9 +21,18 @@ public class UserController {
 
     private CustomerService customerService;
 
+    public UserController(CustomerService customerService, EmployeeService employeeService) {
+        this.customerService = customerService;
+        this.employeeService = employeeService;
+    }
+
+    private EmployeeService employeeService;
+/*
     public UserController(CustomerService customerService) {
         this.customerService = customerService;
     }
+
+ */
 
     @PostMapping("/customer")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
@@ -51,12 +60,23 @@ public class UserController {
 
     @PostMapping("/employee")
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
-        throw new UnsupportedOperationException();
+        Employee empl = new Employee();
+        BeanUtils.copyProperties(employeeDTO, empl);
+        empl = employeeService.saveEmployee(empl);
+        employeeDTO.setId(empl.getId());
+        System.out.println("Name Set : " + empl.getName());
+        System.out.println("ID Set : " + empl.getId() + " : " + employeeDTO.getId());
+        return employeeDTO;
     }
 
     @PostMapping("/employee/{employeeId}")
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        //Employee empl = employeeService.getEmployeeByID(employeeId);
+        //System.out.println("What we found : " + empl.getId() + " : " + empl.getName());
+        BeanUtils.copyProperties(employeeService.getEmployeeByID(employeeId), employeeDTO);
+        //System.out.println(employeeDTO.getName());
+        return employeeDTO;
     }
 
     @PutMapping("/employee/{employeeId}")
