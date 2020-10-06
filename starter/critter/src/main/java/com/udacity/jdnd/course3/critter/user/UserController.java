@@ -55,7 +55,8 @@ public class UserController {
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        throw new UnsupportedOperationException();
+        Customer customer = customerService.getOwnerByPetId(petId);
+        return convertCustomerToCustomerDTO(customer);
     }
 
     @PostMapping("/employee")
@@ -64,8 +65,10 @@ public class UserController {
         BeanUtils.copyProperties(employeeDTO, empl);
         empl = employeeService.saveEmployee(empl);
         employeeDTO.setId(empl.getId());
+        /*
         System.out.println("Name Set : " + empl.getName());
         System.out.println("ID Set : " + empl.getId() + " : " + employeeDTO.getId());
+         */
         return employeeDTO;
     }
 
@@ -81,12 +84,19 @@ public class UserController {
 
     @PutMapping("/employee/{employeeId}")
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
+        employeeService.setEmployeeAvailability(daysAvailable, employeeId);
     }
 
     @GetMapping("/employee/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        throw new UnsupportedOperationException();
+        List<Employee> employeesWithSkill = employeeService.getEmployeeBySkillAndDate(employeeDTO.getSkills(), employeeDTO.getDate());
+        List<EmployeeDTO> emplDTO = new ArrayList<EmployeeDTO>();
+        for(Employee empl : employeesWithSkill) {
+            EmployeeDTO edto = new EmployeeDTO();
+            BeanUtils.copyProperties(empl, edto);
+            emplDTO.add(edto);
+        }
+        return emplDTO;
     }
 
     private CustomerDTO convertCustomerToCustomerDTO(Customer customer) {
