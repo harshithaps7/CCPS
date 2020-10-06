@@ -24,7 +24,7 @@ public class EmployeeService {
         return employeeRepository.save(empl);
     }
 
-    public Employee getEmployeeByID(Long id) {
+    public Employee getEmployeeByID(long id) {
         //System.out.println("Inside service : " + id);
         return employeeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found, ID: " + id));
     }

@@ -25,6 +25,13 @@ public class PetController {
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
         Pet pet = new Pet();
+        /*
+        pet.setBirthDate(petDTO.getBirthDate());
+        pet.setName(petDTO.getName());
+        pet.setNotes(petDTO.getNotes());
+        pet.setType(petDTO.getType());
+        pet.setOwnerId(petDTO.getOwnerId());
+         */
         BeanUtils.copyProperties(petDTO, pet);
         Pet newPet = petService.savePet(pet);
         petDTO.setId(newPet.getId());
