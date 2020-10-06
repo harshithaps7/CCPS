@@ -1,8 +1,11 @@
 package com.udacity.jdnd.course3.critter.schedule;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles web requests related to Schedules.
@@ -10,15 +13,31 @@ import java.util.List;
 @RestController
 @RequestMapping("/schedule")
 public class ScheduleController {
+    public ScheduleController(ScheduleService scheduleService) {
+        this.scheduleService = scheduleService;
+    }
+
+    ScheduleService scheduleService;
 
     @PostMapping
     public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
-        throw new UnsupportedOperationException();
+        Schedule schedule = new Schedule();
+        BeanUtils.copyProperties(scheduleDTO,schedule);
+        schedule = scheduleService.saveSchedule(schedule);
+        BeanUtils.copyProperties(schedule, scheduleDTO);
+        return scheduleDTO;
     }
 
     @GetMapping
     public List<ScheduleDTO> getAllSchedules() {
-        throw new UnsupportedOperationException();
+        List<Schedule> schedules = scheduleService.getAllSchedules();
+        List<ScheduleDTO> scheduleDTOS = new ArrayList<ScheduleDTO>();
+        for (Schedule schedule : schedules) {
+            ScheduleDTO scheduleDTO = new ScheduleDTO();
+            BeanUtils.copyProperties(schedule, scheduleDTO);
+            scheduleDTOS.add(scheduleDTO);
+        }
+        return scheduleDTOS;
     }
 
     @GetMapping("/pet/{petId}")
