@@ -24,8 +24,10 @@ public class ScheduleController {
     @PostMapping
     public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
         Schedule schedule = new Schedule();
+        List<Long> employeeIds = scheduleDTO.getEmployeeIds();
+        List<Long> petIds = scheduleDTO.getPetIds();
         BeanUtils.copyProperties(scheduleDTO,schedule);
-        schedule = scheduleService.saveSchedule(schedule);
+        schedule = scheduleService.saveSchedule(schedule, employeeIds, petIds);
         BeanUtils.copyProperties(schedule, scheduleDTO);
         return scheduleDTO;
     }
@@ -53,11 +55,32 @@ public class ScheduleController {
         List<ScheduleDTO> scheduleDTOS = new ArrayList<ScheduleDTO>();
         for (Schedule schedule : employeeSchedules) {
             ScheduleDTO scheduleDTO = new ScheduleDTO();
-            scheduleDTO.setEmployeeIds(schedule.getEmployees().stream().map(Employee::getId).collect(Collectors.toList()));
-            scheduleDTO.setPetIds(schedule.getPets().stream().map(Pet::getId).collect(Collectors.toList()));
+            //System.out.println(schedule.getEmployees().get(0).getId());
+            scheduleDTO.setEmployeeIds(getEmployeeIdsFromSchedule(schedule));
+            scheduleDTO.setPetIds(getPetIdsFromSchedule(schedule));
+            scheduleDTO.setActivities(schedule.getActivities());
+            scheduleDTO.setDate(schedule.getDate());
             scheduleDTOS.add(scheduleDTO);
         }
         return scheduleDTOS;
+    }
+
+    private List<Long> getPetIdsFromSchedule(Schedule schedule) {
+        List<Long> petIds = new ArrayList<>();
+        List<Pet> pets = schedule.getPets();
+        for(Pet pet : pets) {
+            petIds.add(pet.getId());
+        }
+        return petIds;
+    }
+
+    private List<Long> getEmployeeIdsFromSchedule(Schedule schedule) {
+        List<Long> employeeIds = new ArrayList<>();
+        List<Employee> employees = schedule.getEmployees();
+        for(Employee employee : employees) {
+            employeeIds.add(employee.getId());
+        }
+        return employeeIds;
     }
 
     @GetMapping("/customer/{customerId}")

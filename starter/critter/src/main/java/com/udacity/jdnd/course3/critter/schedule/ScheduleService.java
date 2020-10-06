@@ -1,7 +1,9 @@
 package com.udacity.jdnd.course3.critter.schedule;
 
 
+import com.udacity.jdnd.course3.critter.exception.ResourceNotFoundException;
 import com.udacity.jdnd.course3.critter.pet.Pet;
+import com.udacity.jdnd.course3.critter.pet.PetRepository;
 import com.udacity.jdnd.course3.critter.pet.PetService;
 import com.udacity.jdnd.course3.critter.user.*;
 import org.springframework.stereotype.Service;
@@ -13,52 +15,44 @@ import java.util.List;
 @Service
 @Transactional
 public class ScheduleService {
-    ScheduleRepository scheduleRepository;
-    PetService petService;
-    EmployeeService employeeService;
-    CustomerService customerService;
-    EmployeeRepository employeeRepository;
 
-    public ScheduleService(EmployeeRepository employeeRepository, ScheduleRepository scheduleRepository, PetService petService, EmployeeService employeeService, CustomerService customerService) {
+    private final ScheduleRepository scheduleRepository;
+    private final EmployeeRepository employeeRepository;
+    private final PetRepository petRepository;
+    private final CustomerRepository customerRepository;
+
+    public ScheduleService(ScheduleRepository scheduleRepository, EmployeeRepository employeeRepository, PetRepository petRepository, CustomerRepository customerRepository) {
         this.scheduleRepository = scheduleRepository;
-        this.petService = petService;
-        this.employeeService = employeeService;
-        this.customerService = customerService;
         this.employeeRepository = employeeRepository;
+        this.petRepository = petRepository;
+        this.customerRepository = customerRepository;
     }
 
-    public Schedule saveSchedule(Schedule schedule) {
+    public Schedule saveSchedule(Schedule schedule, List<Long> employeeIds, List<Long> petIds) {
+        List<Employee> employees = employeeRepository.findAllById(employeeIds);
+        List<Pet> pets = petRepository.findAllById(petIds);
+        schedule.setEmployeeIds(employees);
+        schedule.setPetIds(pets);
         return scheduleRepository.save(schedule);
     }
 
-    public List<Schedule> getAllSchedules() {
-        return scheduleRepository.findAll();
-    }
-
     public List<Schedule> getScheduleByEmployeeId(long employeeId) {
-        Employee empl = employeeRepository.getOne(employeeId);
-        return scheduleRepository.getAllByEmployeesContains(empl);
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(()-> new ResourceNotFoundException("No Employee for ID : " + employeeId));
+        return scheduleRepository.getAllByEmployeesContains(employee);
     }
 
     public List<Schedule> getScheduleByPetId(long petId) {
-        Pet pet = petService.getPetById(petId);
+        Pet pet = petRepository.findById(petId).orElseThrow(()-> new ResourceNotFoundException("No Pet for ID : " + petId));
         return scheduleRepository.getAllByPetsContains(pet);
     }
 
     public List<Schedule> getScheduleByCustomerId(long customerId) {
-        List<Pet> petOfCustomer = petService.getPetsByOwner(customerId);
-        List<Schedule> schedules = new ArrayList<>();
-        ArrayList<Long> loadedScheduleIds = new ArrayList<>();
-        for (Pet pet : petOfCustomer) {
-            List<Schedule> petSchedules = getScheduleByPetId(pet.getId());
-            for (Schedule schedule : petSchedules) {
-                if(!loadedScheduleIds.contains(schedule.getId())) {
-                    loadedScheduleIds.add(schedule.getId());
-                    schedules.add(schedule);
-                }
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new ResourceNotFoundException("No Customer with ID : " + customerId));
+        List<Pet> customerPets = customer.getPets();
+        return scheduleRepository.getAllByPetsIn(customerPets);
+    }
 
-            }
-        }
-        return schedules;
+    public List<Schedule> getAllSchedules() {
+        return scheduleRepository.findAll();
     }
 }

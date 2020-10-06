@@ -28,7 +28,7 @@ public class CustomerService {
     }
 
     public Customer getOwnerByPetId(long petId) {
-        Long customerId = petService.getPetById(petId).getOwnerId();
+        Long customerId = petService.getPetById(petId).getOwnerId().getId();
         return customerRepository.findById(customerId).orElseThrow(() -> new ResourceNotFoundException("No Customer found for Pets Owner ID : " + customerId + ", Pet Id is : " + petId));
     }
 }

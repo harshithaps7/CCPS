@@ -95,14 +95,21 @@ public class CritterFunctionalTest {
 
         PetDTO petDTO = createPetDTO();
         petDTO.setOwnerId(newCustomer.getId());
+        System.out.println("Pet ID, (B0) : " + petDTO.getId());
         PetDTO newPet = petController.savePet(petDTO);
+        System.out.println("Pet ID, (A0) : " + petDTO.getId());
+        System.out.println("Pet ID, (A1) : " + newPet.getId());
         petDTO.setType(PetType.DOG);
         petDTO.setName("DogName");
-        System.out.println("Id of Pet : (B1)" + petDTO.getId());
+        System.out.println("Pet ID, (B1) : " + petDTO.getId());
         PetDTO newPet2 = petController.savePet(petDTO);
-        System.out.println("Id of Pet : (A1)" + petDTO.getId() + " : " + newPet2.getId());
+        System.out.println("Pet ID, (A2) : " + petDTO.getId());
+        System.out.println("Pet ID, (A3) : " + newPet2.getId());
 
         List<PetDTO> pets = petController.getPetsByOwner(newCustomer.getId());
+        for(PetDTO petDTO1 : pets ) {
+            System.out.println("Pet ID is : " + petDTO1.getId());
+        }
         Assertions.assertEquals(pets.size(), 2);
         Assertions.assertEquals(pets.get(0).getOwnerId(), newCustomer.getId());
         Assertions.assertEquals(pets.get(0).getId(), newPet.getId());

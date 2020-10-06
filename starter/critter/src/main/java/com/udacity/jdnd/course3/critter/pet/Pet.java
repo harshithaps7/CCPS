@@ -1,9 +1,8 @@
 package com.udacity.jdnd.course3.critter.pet;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.udacity.jdnd.course3.critter.user.Customer;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -15,7 +14,8 @@ public class Pet implements Serializable {
     private Long id;
     private String name;
     private PetType type;
-    private long ownerId;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Customer customer;
 
     public Pet() {
 
@@ -29,12 +29,12 @@ public class Pet implements Serializable {
         this.type = type;
     }
 
-    public long getOwnerId() {
-        return ownerId;
+    public Customer getOwnerId() {
+        return customer;
     }
 
-    public void setOwnerId(long ownerId) {
-        this.ownerId = ownerId;
+    public void setOwnerId(Customer customer) {
+        this.customer = customer;
     }
 
     public LocalDate getBirthDate() {
@@ -55,11 +55,6 @@ public class Pet implements Serializable {
 
     private LocalDate birthDate;
     private String notes;
-
-    public Pet(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     public Long getId() {
         return id;

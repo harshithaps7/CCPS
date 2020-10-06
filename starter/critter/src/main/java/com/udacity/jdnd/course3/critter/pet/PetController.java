@@ -25,24 +25,19 @@ public class PetController {
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
         Pet pet = new Pet();
-        /*
+        Long custmerId = petDTO.getOwnerId();
         pet.setBirthDate(petDTO.getBirthDate());
         pet.setName(petDTO.getName());
         pet.setNotes(petDTO.getNotes());
         pet.setType(petDTO.getType());
-        pet.setOwnerId(petDTO.getOwnerId());
-         */
-        BeanUtils.copyProperties(petDTO, pet);
-        Pet newPet = petService.savePet(pet);
-        petDTO.setId(newPet.getId());
-        return petDTO;
+        Pet newPet = petService.savePet(pet, custmerId);
+        return copyPetToDTO(newPet);
     }
 
     @GetMapping("/{petId}")
     public PetDTO getPet(@PathVariable long petId) {
         Pet pet = petService.getPetById(petId);
-        PetDTO petDTO = new PetDTO();
-        BeanUtils.copyProperties(pet, petDTO);
+        PetDTO petDTO = copyPetToDTO(pet);
         return petDTO;
     }
 
@@ -61,13 +56,25 @@ public class PetController {
     private List<PetDTO> copyPetListToDTO(List<Pet> allPets) {
         List<PetDTO> allPetDTO = new ArrayList<PetDTO>();
 
-        for (Object pet: allPets ) {
+        for (Pet pet: allPets ) {
             PetDTO petDTO= new PetDTO();
-            BeanUtils.copyProperties(pet , petDTO);
+            petDTO = copyPetToDTO(pet);
             allPetDTO.add(petDTO);
         }
 
         return allPetDTO;
+    }
+
+
+    private PetDTO copyPetToDTO(Pet pet) {
+        PetDTO petDTO = new PetDTO();
+        petDTO.setId(pet.getId());
+        petDTO.setName(pet.getName());
+        petDTO.setType(pet.getType());
+        petDTO.setBirthDate(pet.getBirthDate());
+        petDTO.setNotes(pet.getNotes());
+        petDTO.setOwnerId(pet.getOwnerId().getId());
+        return petDTO;
     }
 
 }

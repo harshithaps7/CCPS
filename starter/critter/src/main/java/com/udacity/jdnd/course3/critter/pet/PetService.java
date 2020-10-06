@@ -20,21 +20,16 @@ public class PetService {
         this.customerRepository = customerRepository;
     }
 
-    public Pet savePet(Pet pet) {
+    public Pet savePet(Pet pet, Long customerId) {
         Pet newPet = new Pet();
+        Customer customer = customerRepository.findById(customerId).orElseThrow(()-> new ResourceNotFoundException("No Customer Exist for ID : " + customerId));
+        pet.setOwnerId(customer);
         newPet = petRepository.save(pet);
         //Now need to associate pet to Customer
         //System.out.println("Adding pet : " + newPet.getName() + " : " + newPet.getId());
-        Optional<Customer> customerOptional = customerRepository.findById(newPet.getOwnerId());
-        if (customerOptional.isPresent() && (!pet.getId().equals(newPet.getId()))) {
-            Customer customer = customerOptional.get();
-            //System.out.println("Adding pet to Customer : " + newPet.getName() + " : " + newPet.getId());
-            customer.addOnePet(newPet);
-            //System.out.println("Cust Id : (B) : " + customer.getId());
-            customer = customerRepository.save(customer);
-            //System.out.println("Cust Id : (A) : " + customer.getId());
-        }
         //System.out.println("Returning after Saving Pet : " + newPet.getId());
+        customer.addOnePet(newPet);
+        customerRepository.save(customer);
         return newPet;
     }
 
@@ -47,6 +42,7 @@ public class PetService {
     }
 
     public List<Pet> getPetsByOwner(long ownerId) {
-        return petRepository.findByOwnerId(ownerId);
+        Customer customer = customerRepository.findById(ownerId).orElseThrow(()-> new ResourceNotFoundException("No Customer Exist for ID : " + ownerId));
+        return petRepository.findByCustomer(customer);
     }
 }
